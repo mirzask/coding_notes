@@ -1,0 +1,58 @@
+---
+title: "FFTrees"
+output: html_document
+---
+
+```{r}
+library(FFTrees)
+library(dataPreparation)
+library(caTools)
+```
+
+
+```{r}
+cardiac <- data.table::fread("Decision_Trees/mlbootcamp5_train.csv")
+cardiac$age <- round(cardiac$age / 365, 0)
+head(cardiac)
+```
+
+Create training and test sets:
+
+```{r}
+sample = sample.split(cardiac$cardio, SplitRatio = 0.7)
+
+train = subset(cardiac, sample == TRUE)
+test = subset(cardiac, sample == FALSE)
+```
+
+There is a nice tutorial on the `dataPreparation` package for data cleaning/processing [here](https://cran.r-project.org/web/packages/dataPreparation/vignettes/train_test_prep.html)
+
+
+
+```{r}
+cards_fft <- FFTrees(formula = cardio ~ .,
+                     data = train,
+                     data.test = test)
+```
+
+
+```{r}
+plot(cards_fft, data = "test", decision.labels = c("Disease", "Healthy"))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

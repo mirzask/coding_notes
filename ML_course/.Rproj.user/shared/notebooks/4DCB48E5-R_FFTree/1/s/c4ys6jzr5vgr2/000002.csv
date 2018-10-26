@@ -1,0 +1,1 @@
+"0","plot(cards_fft, data = ""test"", decision.labels = c(""Disease"", ""Healthy""))"
