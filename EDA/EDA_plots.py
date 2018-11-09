@@ -94,6 +94,14 @@ sns.distplot(iris['petal_length'], hist_kws=dict(cumulative=True), kde_kws=dict(
 
 
 
+# Boxplot
+
+sns.boxplot(iris['species'], iris['petal_length']); plt.show()
+
+sns.boxplot('species', 'petal_length', data=iris); plt.show()
+
+
+
 ## Histogram
 
 sns.distplot(iris[iris.species == 'versicolor']['petal_length']); plt.xlabel('petal length (cm)'); plt.ylabel('count'); plt.show()
