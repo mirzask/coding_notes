@@ -47,3 +47,24 @@ RxCUIs = """151871
 
 RxCUI_list = RxCUIs.splitlines()
 print(RxCUI_list)
+
+
+
+
+import xml.etree.ElementTree as ET
+tree = ET.parse('EDA/folate.xml')
+root = tree.getroot()
+
+root.tag
+root.attrib
+
+[elem.tag for elem in root.iter()]
+
+print(ET.tostring(root, encoding='utf8').decode('utf8'))
+
+for cui in root.iter('RXCUI'):
+  print(cui.attrib)
+
+Folate_CUIs = [cui.text for cui in root.iter('RXCUI')]
+
+len(Folate_CUIs)
