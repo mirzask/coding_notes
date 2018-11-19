@@ -4,6 +4,20 @@ df = pd.read_csv('https://raw.githubusercontent.com/uiuc-cse/data-fa14/gh-pages/
 
 df.info()
 
+[f'run{i}' for i in range(1, 6)]
+
+run_columns = ['run%s' % i for i in range(1, 6)]
+print(run_columns)
+
+
+
+[f'site{i}' for i in range(1, 11)]
+
+sites = ['site%s' % i for i in range(1, 11)]
+print(sites)
+
+
+
 # LABEL ENCODER
 
 from sklearn.preprocessing import LabelEncoder
