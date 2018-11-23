@@ -10,9 +10,6 @@ import seaborn as sns
 
 # Import data
 
-test_df = pd.read_csv('../../data/test_sessions.csv',
-                      index_col='session_id')
-
 train_df = pd.read_csv('../coding_notes/data/CatchMeIfYouCan_Alice/train_sessions.csv', index_col='session_id')
 
 test_df = pd.read_csv('../coding_notes/data/CatchMeIfYouCan_Alice/test_sessions.csv', index_col='session_id')
@@ -126,6 +123,8 @@ full_sites.head()
 # "Flat" sequence of indices
 sites_flatten = full_sites.values.flatten()
 
+print(sites_flatten)
+
 # Convert to a sparse data matrix
 # (make sure you understand which of the `csr_matrix` constructors is used here)
 # a further toy example will help you with it
@@ -218,8 +217,14 @@ full_new_feat['start_month']
 
 graphs = pd.concat([full_new_feat[:idx_split], time_df['target']], axis=1)
 
-sns.scatterplot(x='start_month', y='target', hue='target', data=graphs); plt.show()
+#sns.scatterplot(x='start_month', y='target', hue='target', data=graphs); plt.show()
 
 sns.countplot(x='start_month', hue='target', data=graphs); plt.show()
 
-sns.countplot(x='start_month', hue = 'target', data=graphs[graphs.target == 1]); plt.show()
+
+
+graphs.loc[graphs['target'] == 0, 'start_month'].hist(label = "Others")
+graphs.loc[graphs['target'] == 1, 'start_month'].hist(label = "Alice")
+plt.xlabel('Year/Month')
+plt.legend()
+plt.show()
