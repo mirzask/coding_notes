@@ -26,7 +26,7 @@ df.gluc.unique()
 
 df.cholesterol.unique()
 
-## Using get_dummies from pandas
+## Using get_dummies from pandas [umm... should you use dropfirst?]
 
 pd.get_dummies(df.cholesterol, prefix='chol', prefix_sep='_')
 
@@ -38,7 +38,7 @@ df = pd.concat([df,
                  pd.get_dummies(df.cholesterol, prefix='chol', prefix_sep='_'),
                   pd.get_dummies(df.gluc, 'gluc', '_')],
                    axis=1)
-df
+df.head()
 
 # Drop the original `cholesterol` and `gluc` columns
 
@@ -80,7 +80,7 @@ dot_data = export_graphviz(heart_fit, out_file=None, feature_names=X.columns, cl
 graph = graphviz.Source(dot_data)
 graph
 
-
+#### You can also use your dot_file code here if the above doesn't work
 
 
 # Make predictions
@@ -91,13 +91,13 @@ pred = heart_fit.predict(X_test)
 
 accuracy_score(y_true=y_test, y_pred=pred)
 
-confusion_matrix(y_test, pred)
+#confusion_matrix(y_test, pred)
 
-classification_report(y_test, pred)
+#classification_report(y_test, pred)
 
 
 
-############## CROSS-VALIDATION ######################
+############## HYPER-PARAMETER TUNING ######################
 
 # Perform cross-validated Grid Search using 5 folds
 
@@ -106,7 +106,7 @@ tree_params = {'max_depth': list(range(2, 11))}
 
 accurate = make_scorer(accuracy_score)
 
-tree_grid = GridSearchCV(clf, param_grid=tree_params, cv = 5, scoring=accurate)
+tree_grid = GridSearchCV(clf, param_grid=tree_params, cv = 5)
 
 grid = tree_grid.fit(X_train, y_train)
 
@@ -116,33 +116,32 @@ grid = tree_grid.fit(X_train, y_train)
 
 # Determine best estimator
 tree_grid.best_estimator_
+tree_grid.best_score_
+tree_grid.best_params_
 
 ## Create model and assess accuracy of "best" model
-optimal_model = tree_grid.best_estimator_
-optimal_pred = optimal_model.predict(X_test)
-accuracy_score(optimal_pred, y_test)
+
+accuracy_score(y_true=y_test, y_pred=tree_grid.predict(X_test))
 
 tree_grid.cv_results_.keys()
 
 params = tree_grid.cv_results_['params']
 mean_acc = tree_grid.cv_results_['mean_test_score']
 
+for mean, param in zip(mean_acc, params):
+        print(f"{round(mean, 4)*100}% for {param}")
+
 # Create plot of accuracy based on tree depth
-sns.scatterplot(x=np.arange(2, 11), y= mean_acc)
+sns.lineplot(x=np.arange(2, 11), y= mean_acc, label='Accuracy')
+plt.title('Accuracy of Decision Tree by `max_depth`')
+plt.show();
 
 
 
-# Other "bests"
-tree_grid.best_score_
-tree_grid.best_params_
-
-tree_grid.param_grid
-
-tree_grid.grid_scores_
-
-cross_val_score(tree_grid, X_train, y_train, scoring=accurate, cv=5)
 
 
+
+cross_val_score(tree_grid, X_train, y_train, cv=5)
 
 
 
@@ -154,7 +153,7 @@ cross_val_score(tree_grid, X_train, y_train, scoring=accurate, cv=5)
 
 ############ SCORE paper ##################
 
-df = pd.read_csv('mlbootcamp5_train.csv',
+df = pd.read_csv('data/mlbootcamp5_train.csv',
                  index_col='id', sep=';')
 
 df.head()
@@ -170,11 +169,16 @@ df['age_bin'] = pd.cut(df['age'], [40, 50, 55, 60, 65])
 
 # Bins for SBP
 df['SBP_bin'] = pd.cut(df['ap_hi'], [120, 140, 160, 180])
-df
+df.head()
 
+df['age_bin'].unique(), df['SBP_bin'].unique()
 
 ########### Convert Categorical to Numeric ############
 #
+
+############ Pandas Get Dummies ############
+
+pd.get_dummies(df['age_bin'], prefix='age', prefix_sep='_')
 
 ############ Keras ###################
 
@@ -192,7 +196,6 @@ argmax(encoded[0])
 # This is like `pd.get_dummies`
 
 from sklearn.preprocessing import OneHotEncoder
-from numpy import argmax
 
 enc = OneHotEncoder(sparse=False, categories='auto')
 
@@ -201,16 +204,18 @@ enc = OneHotEncoder(sparse=False, categories='auto')
 # Reshape and Fit-Transform
 ## single brackets won't work, i.e. enc.fit_transform(df['cholesterol'].values)
 ## Alternative is: enc.fit_transform(df['cholesterol'].values.reshape(-1,1))
-enc.fit_transform(df[['cholesterol']].values)
-
-#enc.fit_transform(df['cholesterol'].values.reshape(-1,1))
+enc.fit_transform(df[['cholesterol']])
 
 enc.get_feature_names()
 
+#enc.fit_transform(df['cholesterol'].values.reshape(-1,1))
+
 pd.DataFrame(enc.fit_transform(df[['cholesterol']].values),
-             columns = enc.get_feature_names())
+             columns = [f"chol{i}" for i in enc.get_feature_names()])
+
 # Create df, change the column names and then concatenate to add to the original df
 
+enc.fit_transform(df[['age_bin']].dropna())
 
 #
 # LabelEncoder
