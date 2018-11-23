@@ -37,6 +37,8 @@ print(f"CV accuracy score: {round(results.mean()*100, 2)}%")
 
 ############ PARAMETER TUNING ##################
 
+# Initialize the validation
+skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 
 # Using GridSearchCV
 
@@ -61,7 +63,7 @@ importances = gcv.best_estimator_.feature_importances_
 
 indices = np.argsort(importances)[::-1]
 
-
+list(X.columns[indices][:num_to_plot])
 
 # Plot the feature importancies of the forest
 num_to_plot = 10
@@ -71,9 +73,9 @@ feats = {} # a dict to hold feature_name: feature_importance
 for feature, importance in zip(X.columns, importances):
     feats[feature] = importance #add the name/value pair
 
-
+plt.figure(figsize=(15,5))
 imp = pd.DataFrame.from_dict(feats, orient='index').rename(columns={0: 'Gini-importance'})
-imp.sort_values(by='Gini-importance').plot(kind='bar', rot=45)
+imp.sort_values(by='Gini-importance').plot(kind='bar', rot=45);
 
 # Print the feature ranking
 print("Feature ranking:")
@@ -92,11 +94,25 @@ bars = plt.bar(range(num_to_plot),
 ticks = plt.xticks(range(num_to_plot),
                    feature_indices)
 plt.xlim([-1, num_to_plot])
-plt.legend(bars);
+plt.legend(bars, list(X.columns[indices][:num_to_plot]));
 
 
 feature_indices
-[11]
+
+plt.figure(figsize=(15,5))
+plt.title(u"Feature Importance")
+bars = plt.bar(range(num_to_plot),
+               importances[indices[:num_to_plot]],
+       color=([str(i/float(num_to_plot+1))
+               for i in range(num_to_plot)]),
+               align="center")
+ticks = plt.xticks(range(num_to_plot),
+                   list(X.columns[indices][:num_to_plot]),
+                   rotation = 30)
+plt.xlim([-1, num_to_plot])
+plt.legend(bars, list(X.columns[indices][:num_to_plot]));
+
+
 
 
 

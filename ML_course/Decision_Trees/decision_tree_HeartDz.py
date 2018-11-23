@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 
-df = pd.read_csv('mlbootcamp5_train.csv', 
+df = pd.read_csv('data/mlbootcamp5_train.csv',
                  index_col='id', sep=';')
 
 df.head()
@@ -75,9 +75,9 @@ heart_fit = clf.fit(X_train, y_train)
 import graphviz
 
 dot_data = export_graphviz(heart_fit, out_file=None, feature_names=X.columns, class_names=['Disease', 'Healthy'],
-                         filled=True, rounded=True,  
-                         special_characters=True)  
-graph = graphviz.Source(dot_data)  
+                         filled=True, rounded=True,
+                         special_characters=True)
+graph = graphviz.Source(dot_data)
 graph
 
 
@@ -154,7 +154,7 @@ cross_val_score(tree_grid, X_train, y_train, scoring=accurate, cv=5)
 
 ############ SCORE paper ##################
 
-df = pd.read_csv('mlbootcamp5_train.csv', 
+df = pd.read_csv('mlbootcamp5_train.csv',
                  index_col='id', sep=';')
 
 df.head()
@@ -174,7 +174,7 @@ df
 
 
 ########### Convert Categorical to Numeric ############
-# 
+#
 
 ############ Keras ###################
 
@@ -191,15 +191,24 @@ argmax(encoded[0])
 # that does NOT have any hierarchical order
 # This is like `pd.get_dummies`
 
-from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+from sklearn.preprocessing import OneHotEncoder
 from numpy import argmax
 
-enc = OneHotEncoder(sparse=False)
+enc = OneHotEncoder(sparse=False, categories='auto')
 
 #pd.get_dummies(df['cholesterol']) - is sooo much easier
 
 # Reshape and Fit-Transform
-pd.DataFrame(enc.fit_transform(df['cholesterol'].values.reshape(-1,1)), columns = [1, 2, 3])
+## single brackets won't work, i.e. enc.fit_transform(df['cholesterol'].values)
+## Alternative is: enc.fit_transform(df['cholesterol'].values.reshape(-1,1))
+enc.fit_transform(df[['cholesterol']].values)
+
+#enc.fit_transform(df['cholesterol'].values.reshape(-1,1))
+
+enc.get_feature_names()
+
+pd.DataFrame(enc.fit_transform(df[['cholesterol']].values),
+             columns = enc.get_feature_names())
 # Create df, change the column names and then concatenate to add to the original df
 
 
