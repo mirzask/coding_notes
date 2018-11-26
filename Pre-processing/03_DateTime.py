@@ -36,8 +36,14 @@ df['year'] = df['date_dt'].apply(lambda row: row.year)
 # Extract week
 df['week'] = df['date_dt'].apply(lambda row: row.week)
 
+
 # Extract day of the week
 df['day_of_week'] = df['date_dt'].apply(lambda row: row.dayofweek)
+
+
+# Determine if weekend
+df['weekend'] = df['date_dt'].apply(lambda row: 1 if row.dayofweek in (5, 6) else 0)
+
 
 # Extract day of the year
 df['day_of_year'] = df['date_dt'].apply(lambda row: row.dayofyear)
