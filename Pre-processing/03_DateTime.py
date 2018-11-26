@@ -1,5 +1,16 @@
 import pandas as pd
 
+# Convert datetime columns on import using `parse_dates` in pd.read_csv
+times = [f'time{i}' for i in range(1, 11)]
+
+train_df = pd.read_csv('data/CatchMeIfYouCan_Alice/train_sessions.csv', index_col='session_id', parse_dates=times)
+
+train_df[times].dtypes
+
+
+
+# More fun w/ Dates and Times
+
 df = pd.read_csv('https://raw.githubusercontent.com/fivethirtyeight/data/master/us-weather-history/KIND.csv')
 
 df.head()

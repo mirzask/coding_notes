@@ -236,3 +236,118 @@ df.rename(columns = {'gender': 'male'}, inplace=True)
 
 
 # Tip: Can perform the fit -> transform in 1 step using `fit_transform` method
+
+
+
+
+
+
+
+# One-Hot Encode/ Label Encode age, SBP, smoke, cholesterol and gender
+
+from sklearn.preprocessing import OneHotEncoder, LabelEncoder
+
+ohe, le = OneHotEncoder(), LabelEncoder()
+
+df.smoke.unique()
+df.gender.unique()
+
+# Transform Gender to 0, 1 (for F/M respectively)
+df.gender.values
+df['male'] = le.fit_transform(df['gender'])
+
+
+# One-Hot age, SBP, smoke, cholesterol
+
+## Change cholesterol to categorical
+df['cholesterol'] = df['cholesterol'].astype('category')
+
+## Identify columns to one-hot encode
+to_ohe = ['age_bin', 'SBP_bin', 'cholesterol']
+
+## OHE using Pandas get_dummies
+
+pd.get_dummies(data=df[to_ohe]) # output is only OHE columns
+
+# If you want the df + OHE columns
+pd.get_dummies(df, columns=to_ohe)
+
+
+
+
+
+# Decision tree with age, SBP, smoke, cholesterol and gender
+
+## Should be 12 features
+
+df_12 = pd.concat((df[['male', 'smoke']], pd.get_dummies(data=df[to_ohe])), axis=1)
+df[['male', 'smoke']].shape
+pd.get_dummies(data=df[to_ohe]).shape
+df_12.shape
+
+y = pd.Series(df['cardio'], index=df_12.index).values
+
+# Build model
+
+tree = DecisionTreeClassifier(max_depth=3, random_state=17)
+
+tree.fit(df_12, y)
+
+# View decision tree
+
+import pydotplus
+from sklearn.tree import export_graphviz
+
+def tree_graph_to_png(tree, feature_names, png_file_to_save):
+    tree_str = export_graphviz(tree, feature_names=feature_names,
+                                     filled=True, out_file=None)
+    graph = pydotplus.graph_from_dot_data(tree_str)
+    graph.write_png(png_file_to_save)
+
+
+tree_graph_to_png(tree=tree, feature_names=df_12.columns, png_file_to_save='tree_Q5.png')
+
+
+
+
+
+
+
+
+# Evaluate feature importance
+
+X = df_12
+importances = tree.feature_importances_
+
+indices = np.argsort(importances)[::-1]
+
+feature_indices = [ind+1 for ind in indices[:len(indices)]]
+
+feats = {} # a dict to hold feature_name: feature_importance
+for feature, importance in zip(X.columns, importances):
+    feats[feature] = importance #add the name/value pair
+
+plt.figure(figsize=(15,5))
+imp = pd.DataFrame.from_dict(feats, orient='index').rename(columns={0: 'Gini-importance'})
+imp.sort_values(by='Gini-importance').plot(kind='bar', rot=75);
+
+
+print("Feature ranking:")
+
+for k,v in feats.items():
+    print(f"{k}: {round(v*100, 2)}%")
+
+num_to_plot = 10
+
+
+plt.figure(figsize=(15,5))
+plt.title(u"Feature Importance")
+bars = plt.bar(range(num_to_plot),
+               importances[indices[:num_to_plot]],
+       color=([str(i/float(num_to_plot+1))
+               for i in range(num_to_plot)]),
+               align="center")
+ticks = plt.xticks(range(num_to_plot),
+                   feature_indices)
+plt.xlim([-1, num_to_plot])
+plt.legend(bars, list(X.columns[indices][:num_to_plot]));
