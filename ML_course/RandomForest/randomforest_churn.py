@@ -69,20 +69,40 @@ list(X.columns[indices][:num_to_plot])
 num_to_plot = 10
 feature_indices = [ind+1 for ind in indices[:num_to_plot]]
 
+# Create a data DataFrame with feature importances
+
+pd.DataFrame(importances, index=X.columns,
+             columns=['importance']).sort_values(by='importance',
+                                                 ascending=False)
+
+# Add `.plot()` to go from DataFrame of importances -> Bar plot
+pd.DataFrame(importances, index=X.columns,
+             columns=['importance']).sort_values(by='importance',
+                                                 ascending=False).plot(kind='barh')
+
+
+
+# Create a dictionary with feature importance
+
 feats = {} # a dict to hold feature_name: feature_importance
 for feature, importance in zip(X.columns, importances):
     feats[feature] = importance #add the name/value pair
+
+# Create a feature importance plot
 
 plt.figure(figsize=(15,5))
 imp = pd.DataFrame.from_dict(feats, orient='index').rename(columns={0: 'Gini-importance'})
 imp.sort_values(by='Gini-importance').plot(kind='bar', rot=45);
 
-# Print the feature ranking
+
+# Print the feature ranking from the dictionary of feature importance
 print("Feature ranking:")
 
 for k,v in feats.items():
     print(f"{k}: {round(v*100, 2)}%")
 
+
+# Another Feature importance plot
 
 plt.figure(figsize=(15,5))
 plt.title(u"Feature Importance")
